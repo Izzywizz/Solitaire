@@ -12,4 +12,28 @@ using UnityEngine;
 
 public class Card : MonoBehaviour
 {
+    //This will be defined later
 }
+
+[System.Serializable] // A Serializable class is able to be editied in the Inspector
+// This class stores information about each decorator or pi from DeckXML
+public class Decorator
+{
+    public string type; // For card pips, type = "pip"
+    public Vector3 loc; // The location of the Sprite on the Card
+    public bool flip = false; // Whether to flip the Sprite vertically
+    public float scale = 1f; // The scale of the Sprite
+}
+
+[System.Serializable]
+// This class stores information for each rank of card (rank means Ace, King, 2, 3 etc)
+public class CardDefinition
+{
+    public string face; // Sprite to use for each face card
+    public int rank; // The rank (1-12) of this card
+    public List<Decorator> pips = new List<Decorator>(); // Pips used
+
+    /* Recall that Pips are the decorator images like the clubs/ spades etc in the corners of each non-face card (ie numbered)
+     */   
+}
+
