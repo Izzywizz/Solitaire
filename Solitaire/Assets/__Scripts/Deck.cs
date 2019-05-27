@@ -36,13 +36,32 @@ public class Deck : MonoBehaviour
     public Transform deckAnchor;
     public Dictionary<string, Sprite> dictSuits;
 
-    // InitDEck is call by Prospector when it is ready
+    /// InitDeck is call by Prospector when it is ready
     public void InitDeck(string deckXMLText)
     {
+        // This creates an anchor for all the Card GameObjects in the hierarchy, cleans up the screen
+        if (GameObject.Find("_Deck") == null)
+        {
+            GameObject anchorGO = new GameObject("_Deck");
+            deckAnchor = anchorGO.transform;
+        }
+
+        // Initialize the Dictionary of SuitSprites with necessary Sprites
+        dictSuits = new Dictionary<string, Sprite>()
+        {
+            {"C", suitClub },
+            {"D", suitDiamond},
+            {"H", suitHeart},
+            {"S", suitSpade }
+
+        }; // cool way to init the dict from the start
+
         ReadDeck(deckXMLText);
+
+        MakeCards();
     }
 
-    // ReadDeck parses the XML file passsed to it into CardDefinitions
+    /// ReadDeck parses the XML file passsed to it into CardDefinitions
     private void ReadDeck(string deckXMLText)
     {
         xmlr = new PT_XMLReader(); // Create a new instance of PT_XMLReader (our xml helper util class)
@@ -119,6 +138,135 @@ public class Deck : MonoBehaviour
             cardDefs.Add(cDef);
             // cDef.face is the base name of the card, so FaceCard_11 is Jacks face Sprile
             // FaceCard_11C is the Jack of clubs and FaceCard_11H is for the Jact of hearts and so on 
+        }
+    }
+
+    /// Get the proper CardDefinitions based on Rank (1-14 is Ace to King)
+    public CardDefinition GetCardDefinitionByRank(int rank)
+    {
+        // Search through all of the CardDefinitions
+        foreach (CardDefinition cd in cardDefs)
+        {
+            // If the rank is correct, return this definition
+            if (cd.rank == rank)
+            {
+                return cd;
+            }
+        }
+        return (null);
+    }
+
+    /// <summary>
+    /// Make the Card GameObjects
+    /// </summary>
+    public void MakeCards()
+    {
+        // cardNames will be the names of cards to build
+        // Each suit goes from 1 to 14 (e.g., C1 to C14 for Clubs
+        string[] letters = new string[]
+        {
+            "C", "D", "H", "S"
+        }; // cool way to init
+
+        foreach (string str in letters) // This steps through the suits in the Letters array and adds the numbers 1-14 to each suit,
+        {
+            for (int i = 0; i < 13; i++) // recall that index's are 0 based, so there isn't 0 suit so we add 1 to it
+            {
+                cardNames.Add(str + (i + 1));
+            }
+        }
+
+        // Make a List to hold add the cards
+        cards = new List<Card>();
+
+        // Iterate through all of the card names that were just made
+        for (int i = 0; i < cardNames.Count; i++)
+        {
+            // Make the card and add it to the cards deck, a private helper method that actually goes and creates the cards and add it to this list
+            cards.Add(MakeCards(i));
+        }
+
+    }
+
+    private Card MakeCards(int cNum)
+    {
+        // Create a new Card GameObject
+        GameObject cgo = Instantiate(prefabCard) as GameObject;
+        // Set the transform.parent of the new card to the anchor, for a a clean hierarchy
+        cgo.transform.parent = deckAnchor;
+        Card card = cgo.GetComponent<Card>(); // Get the card component attached to the prefabCard
+
+        // This line stacks the cars so that they're all in nice rows
+        cgo.transform.localPosition = new Vector3((cNum % 13) * 3, cNum / 13 * 4, 0);
+
+        // Assign basic values to the Card
+        card.name = cardNames[cNum];
+        card.suit = card.name[0].ToString(); // first character of card which gives you the suit, recall C14 , C part
+        card.rank = int.Parse(card.name.Substring(1));// recall we created the cards C1, we need the 'Number' part '1'
+        if (card.suit == "D" || card.suit == "H") // Hearts & diamonds always red coloured cards
+        {
+            card.colS = "Red";
+            card.color = Color.red;
+        }
+        // Pull the CardDefintion for this card
+        card.def = GetCardDefinitionByRank(card.rank);
+
+        AddDecorators(card);
+
+        return card;
+    }
+
+    // These private variables will be reused several times in helper methods
+    private Sprite _tSp = null;
+    private GameObject _tGO = null;
+    private SpriteRenderer _tSR = null;
+
+
+    private void AddDecorators(Card card)
+    {
+        // Add Decorators, those smalls pips on the card that identify what suit it is
+        foreach (Decorator deco in decorators)
+        {
+            if (deco.type == "suit")
+            {
+                // Instantiate a Spite GameObject
+                _tGO = Instantiate(prefabSprite) as GameObject;
+                // Get the Sprite Renderer component
+                _tSR = _tGO.GetComponent<SpriteRenderer>();
+                // Set the Sprite to the proper suit
+                _tSR.sprite = dictSuits[card.suit];
+            }
+            else
+            {
+                _tGO = Instantiate(prefabSprite) as GameObject;
+                _tSR = _tGO.GetComponent<SpriteRenderer>();
+                // Get the proper Sprite to show this rank
+                _tSp = rankSprites[card.rank];
+                // Assign this rank Sprite to match the suit
+                _tSR.color = card.color;
+            }
+
+            // MAke the deco Sprites render above the card
+            _tSR.sortingOrder = 1;
+            // Make the decorartor SSprite a child of the card
+            _tGO.transform.SetParent(card.transform);
+            // Set the localPosition based on the location from DeckXML
+            _tGO.transform.localPosition = deco.loc;
+            // Flip the decorator if needed
+            if (deco.flip)
+            {
+                //An euler rotation of 180 around the Z-axis will flip it
+                _tGO.transform.rotation = Quaternion.Euler(0, 0, 180);
+            }
+            // SEt the sclae to keep decos from being too big
+            if (deco.scale != 1)
+            {
+                _tGO.transform.localScale = Vector3.one * deco.scale;
+            }
+            // Name this GameObject so its easy to see
+            _tGO.name = deco.type;
+            // Add this deco GameObject to the List card.decoGOs
+            card.decoGOs.Add(_tGO);
         }
     }
 }

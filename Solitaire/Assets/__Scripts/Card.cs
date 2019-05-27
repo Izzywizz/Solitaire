@@ -12,7 +12,21 @@ using UnityEngine;
 
 public class Card : MonoBehaviour
 {
-    //This will be defined later
+    [Header("Set Dynamically")]
+    public string suit; // Suit of the Card (C, D, or S)
+    public int rank; // Rank of the card (1-14)
+    public Color color = Color.black; // color to tint pips
+    public string colS = "Black"; // or "red". Name of the Color
+
+    // This Lists holds all of the Decorator GameObjects
+    public List<GameObject> decoGOs = new List<GameObject>();
+    // This List holds all of the Pip GameObjects;
+    public List<GameObject> pipGOs = new List<GameObject>();
+
+    public GameObject back; // The GameObject of the back of the card
+
+    public CardDefinition def; // Parsed from DecXML.xml
+
 }
 
 [System.Serializable] // A Serializable class is able to be editied in the Inspector
