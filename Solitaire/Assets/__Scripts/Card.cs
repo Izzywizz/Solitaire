@@ -27,6 +27,19 @@ public class Card : MonoBehaviour
 
     public CardDefinition def; // Parsed from DecXML.xml
 
+    // Changing the sorting order will actually give the illusion that card has fliped nad remain unseen
+    public bool faceUp
+    {
+        get
+        {
+            return (!back.activeSelf);
+        }
+        set
+        {
+            back.SetActive(!value);
+        }
+    }
+
 }
 
 [System.Serializable] // A Serializable class is able to be editied in the Inspector

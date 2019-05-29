@@ -10,6 +10,7 @@ public class Deck : MonoBehaviour
 {
     [Header("Set in Inspector")]
     // Suits
+    public bool startFaceUp = false;
     public Sprite suitClub;
     public Sprite suitDiamond;
     public Sprite suitHeart;
@@ -35,6 +36,8 @@ public class Deck : MonoBehaviour
     public List<CardDefinition> cardDefs;
     public Transform deckAnchor;
     public Dictionary<string, Sprite> dictSuits;
+
+
 
     /// InitDeck is call by Prospector when it is ready
     public void InitDeck(string deckXMLText)
@@ -214,9 +217,33 @@ public class Deck : MonoBehaviour
         AddDecorators(card);
         AddPips(card);
         AddFace(card);
-
+        AddBack(card);
 
         return card;
+    }
+
+    /// <summary>
+    /// This doesn't actually add a back to the cards, rather the back will be Sprite
+    /// with a higher sorting order then anything else on the card and will be visable when the
+    /// card is face down but invsible when the card is face up
+    /// </summary>
+    /// <param name="card">Card.</param>
+    private void AddBack(Card card)
+    {
+        // Add Card Back
+        // The CArd_Back will be able to cover everything else on the Card
+        _tGO = Instantiate(prefabSprite) as GameObject;
+        _tSR = _tGO.GetComponent<SpriteRenderer>();
+        _tSR.sprite = cardBack;
+        _tGO.transform.SetParent(card.transform);
+        _tGO.transform.localPosition = Vector3.zero;
+        // This is a higher sorting order than anything else
+        _tSR.sortingOrder = 2;
+        _tGO.name = "back";
+        card.back = _tGO;
+
+        // DEfault to face-up
+        card.faceUp = startFaceUp;
     }
 
     private void AddFace(Card card)
