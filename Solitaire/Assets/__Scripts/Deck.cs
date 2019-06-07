@@ -375,4 +375,30 @@ public class Deck : MonoBehaviour
             card.decoGOs.Add(_tGO);
         }
     }
+
+    /// Shuffle the Cards in Deck.cards using pass-by-reference(ref) as the current 
+    /// card desk will be shuffled without copying behaviour or returning a new deck
+    public static void Shuffle(ref List<Card> oCards)
+    {
+        // Create a temp list to hold the new shuffle order
+        List<Card> tCards = new List<Card>();
+
+        int ndx; // This hold the index of the card to be moved
+        tCards = new List<Card>();  // Initialize the temp list
+        // repeat as long as there are cards in the original List
+        while (oCards.Count > 0)
+        {
+            // Pick the index of a random card
+            ndx = UnityEngine.Random.Range(0, oCards.Count);
+            // Add that card to the temp List
+            tCards.Add(oCards[ndx]);
+            // and remove that card from the orginal List
+            oCards.RemoveAt(ndx);
+        }
+        // Replace the orginal List with the temp List
+        oCards = tCards;
+        // Because oCard is a reference (ref) parameter, the original argument
+        // that was passied in is changed as well, pass-by-reference C++ style &
+    }
+
 }
