@@ -15,9 +15,11 @@ public class Prospector : MonoBehaviour
 
     [Header("Set in Insepctor")]
     public TextAsset deckXML;
+    public TextAsset layoutXML;
 
     [Header("Set Dynamically")]
     public Deck deck;
+    public Layout layout;
 
     private void Awake()
     {
@@ -31,13 +33,17 @@ public class Prospector : MonoBehaviour
         if (deck != null)
         {
             Deck.Shuffle(ref deck.cards); // This shuffles the deck by reference
-            Card card;
-            // The loop repositions the cards after the shuffle has occured
-            for (int cNum = 0; cNum < deck.cards.Count; cNum++)
-            {
-                card = deck.cards[cNum];
-                card.transform.localPosition = new Vector3((cNum % 13) * 3, cNum / 12 * 4, 0);
-            }
+
+            layout = GetComponent<Layout>(); // Get the Layout component
+            layout.ReadLayout(layoutXML.text); // Pass the layoutXML to it
+
+            //Card card;
+            //// The loop repositions the cards after the shuffle has occured
+            //for (int cNum = 0; cNum < deck.cards.Count; cNum++)
+            //{
+            //    card = deck.cards[cNum];
+            //    card.transform.localPosition = new Vector3((cNum % 13) * 3, cNum / 12 * 4, 0);
+            //}
         }
     }
 }
