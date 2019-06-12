@@ -378,6 +378,8 @@ public class Deck : MonoBehaviour
 
     /// Shuffle the Cards in Deck.cards using pass-by-reference(ref) as the current 
     /// card desk will be shuffled without copying behaviour or returning a new deck
+    /// when all the cards have been removed from oCards and added to the temp tCards
+    /// Stop shuffling! Then add it back again
     public static void Shuffle(ref List<Card> oCards)
     {
         // Create a temp list to hold the new shuffle order
@@ -399,6 +401,8 @@ public class Deck : MonoBehaviour
         oCards = tCards;
         // Because oCard is a reference (ref) parameter, the original argument
         // that was passied in is changed as well, pass-by-reference C++ style &
+
+
     }
 
 }
